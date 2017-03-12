@@ -26,6 +26,18 @@ LDAPAPIInfo get_api_info(LDAP * connection) {
 	return get_option<LDAPAPIInfo>(connection, LDAP_OPT_API_INFO);
 }
 
+int get_file_descriptor(LDAP * connection) {
+	return get_option<int>(connection, LDAP_OPT_DESC);
+}
+
+std::string get_diagnostic_message(LDAP * connection) {
+	return get_option<std::string>(connection, LDAP_OPT_DIAGNOSTIC_MESSAGE);
+}
+
+int get_result_code(LDAP * connection) {
+	return get_option<int>(connection, LDAP_OPT_RESULT_CODE);
+}
+
 int get_debug_level(LDAP * connection) {
 	return get_option<int>(connection, LDAP_OPT_DEBUG_LEVEL);
 }
@@ -40,18 +52,6 @@ std::string get_default_base(LDAP * connection) {
 
 void set_default_base(LDAP * connection, std::string const & base_dn) {
 	return set_option(connection, LDAP_OPT_DEFBASE, base_dn);
-}
-
-int get_file_descriptor(LDAP * connection) {
-	return get_option<int>(connection, LDAP_OPT_DESC);
-}
-
-std::string get_diagnostic_message(LDAP * connection) {
-	return get_option<std::string>(connection, LDAP_OPT_DIAGNOSTIC_MESSAGE);
-}
-
-int get_result_code(LDAP * connection) {
-	return get_option<int>(connection, LDAP_OPT_RESULT_CODE);
 }
 
 std::chrono::microseconds get_network_timeout(LDAP * connection) {
@@ -130,11 +130,11 @@ void set_tls_cipher_suite(LDAP * connection, std::string const & suites) {
 	set_option(connection, LDAP_OPT_X_TLS_CIPHER_SUITE, suites);
 }
 
-crl_check get_tls_crlcheck(LDAP * connection) {
-	return crl_check(get_option<int>(connection, LDAP_OPT_X_TLS_CRLCHECK));
+crl_check_t get_tls_crlcheck(LDAP * connection) {
+	return crl_check_t(get_option<int>(connection, LDAP_OPT_X_TLS_CRLCHECK));
 }
 
-void set_tls_crlcheck(LDAP * connection, crl_check check) {
+void set_tls_crlcheck(LDAP * connection, crl_check_t check) {
 	set_option(connection, LDAP_OPT_X_TLS_CRLCHECK, int(check));
 }
 
@@ -162,12 +162,12 @@ void set_tls_keyfile(LDAP * connection, std::string const & path) {
 	set_option(connection, LDAP_OPT_X_TLS_KEYFILE, path);
 }
 
-int get_tls_protocol_min(LDAP * connection) {
-	return get_option<int>(connection, LDAP_OPT_X_TLS_PROTOCOL_MIN);
+tls_protocol_t get_tls_protocol_min(LDAP * connection) {
+	return tls_protocol_t(get_option<int>(connection, LDAP_OPT_X_TLS_PROTOCOL_MIN));
 }
 
-void set_tls_protocol_min(LDAP * connection, int minimum_version) {
-	set_option(connection, LDAP_OPT_X_TLS_PROTOCOL_MIN, minimum_version);
+void set_tls_protocol_min(LDAP * connection, tls_protocol_t minimum_version) {
+	set_option(connection, LDAP_OPT_X_TLS_PROTOCOL_MIN, int(minimum_version));
 }
 
 std::string get_tls_random_file(LDAP * connection) {
@@ -178,11 +178,11 @@ void set_tls_random_file(LDAP * connection, std::string const & path) {
 	set_option(connection, LDAP_OPT_X_TLS_RANDOM_FILE, path);
 }
 
-certificate_verification get_tls_require_cert(LDAP * connection) {
-	return certificate_verification(get_option<int>(connection, LDAP_OPT_X_TLS_REQUIRE_CERT));
+require_cert_t get_tls_require_cert(LDAP * connection) {
+	return require_cert_t(get_option<int>(connection, LDAP_OPT_X_TLS_REQUIRE_CERT));
 }
 
-void set_tls_require_cert(LDAP * connection, certificate_verification verify) {
+void set_tls_require_cert(LDAP * connection, require_cert_t verify) {
 	set_option(connection, LDAP_OPT_X_TLS_REQUIRE_CERT, int(verify));
 }
 
