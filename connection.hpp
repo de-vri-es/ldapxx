@@ -1,8 +1,10 @@
-#include <boost/optional.hpp>
-
 #include <ldap.h>
 
-namespace ldap {
+#include <boost/optional.hpp>
+
+#include <string>
+
+namespace ldapp {
 
 struct tcp_options {
 	boost::optional<int> keepalive_idle;
@@ -37,13 +39,21 @@ struct tls_options {
 	boost::optional<cert_check>  require_cert;
 };
 
+struct connection_options {
+	tcp_options tcp;
+	tls_options tls;
+};
+
+void apply_options(LDAP * connection, tcp_options const & options);
+void apply_options(LDAP * connection, tls_options const & options);
+void apply_options(LDAP * connection, connection_options const & options);
+
 class connection {
 	LDAP * ldap_;
 
 	connection(LDAP * ldap) : ldap_(ldap) {};
 
-	connection(std::string const & uri) {
-		
-	}
+	connection(std::string const & uri, connection_options const & options);
+};
 
 }

@@ -1,3 +1,4 @@
+#include "options.hpp"
 #include "walk_result.hpp"
 
 #include <utility>
@@ -6,7 +7,7 @@ namespace ldapp {
 
 unsigned int count_messages(LDAP * connection, result_t result) {
 	int count = ldap_count_messages(connection, result);
-	if (count < 0) throw error{get_error(connection), "counting messages in result"};
+	if (count < 0) throw error{get_result_code(connection), "counting messages in result"};
 	return count;
 }
 
@@ -26,7 +27,7 @@ std::vector<message_t> collect_messages(LDAP * connection, result_t result) {
 
 unsigned int count_entries(LDAP * connection, message_t message) {
 	int count = ldap_count_entries(connection, message);
-	if (count < 0) throw error{get_error(connection), "counting entries in message"};
+	if (count < 0) throw error{get_result_code(connection), "counting entries in message"};
 	return count;
 }
 

@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_executable(main
-	main.cpp
+add_library(ldapp
+	options.cpp
 	search.cpp
 	util.cpp
 	walk_result.cpp
 )
-target_link_libraries(main ldap lber)
+target_link_libraries(ldapp PUBLIC ldap lber)

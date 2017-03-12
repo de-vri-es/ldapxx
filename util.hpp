@@ -2,8 +2,7 @@
 #include "error.hpp"
 
 #include <chrono>
-#include <list>
-#include <type_traits>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -58,41 +57,17 @@ scope_guard<F> at_scope_exit(F && callback) {
 	return scope_guard<F>(std::forward<F>(callback));
 }
 
-/// Set an LDAP options.
-/**
- * Pass nullptr as connection to set a global option.
- */
-template<typename T>
-void set_option(LDAP * connection, int option, T const & value) {
-	if (int code = ldap_set_option(connection, option, &value)) {
-		throw error(code, "setting option " + std::to_string(option));
-	}
-}
-
-/// Get an LDAP options.
-/**
- * Pass nullptr as connection to retrieve a global option.
- */
-template<typename T>
-int get_option(LDAP * connection, int option) {
-	T result;
-	if (int code = ldap_get_option(connection, option, &result)) {
-		throw error(code, "setting option " + std::to_string(option));
-	}
-	return result;
-}
-
-/// Get the last error number from an LDAP connection.
-inline int get_error(LDAP * connection) {
-	return get_option<int>(connection, LDAP_OPT_RESULT_CODE);
-}
-
 /// Convert microseconds to a timeval struct.
 inline timeval to_timeval(std::chrono::microseconds val) {
 	return {
 		val.count() / 1000000,
 		val.count() % 1000000,
 	};
+}
+
+/// Convert microseconds to a timeval struct.
+inline std::chrono::microseconds to_chrono(timeval const & val) {
+	return std::chrono::microseconds{val.tv_sec * 1000000 + val.tv_usec};
 }
 
 /// Convert a vector of strings to a vector of non-owning C string pointers.
