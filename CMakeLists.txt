@@ -6,8 +6,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 add_library(ldapp
+	connection.cpp
 	options.cpp
-	search.cpp
 	util.cpp
 	walk_result.cpp
 )

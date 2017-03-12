@@ -7,6 +7,9 @@
 
 namespace ldapp {
 
+/// The default maximum response size for LDAP queries.
+constexpr std::size_t default_max_response_size = 4 * 1024 * 1024;
+
 struct result_t {
 	LDAPMessage * native;
 	explicit result_t(LDAPMessage * native) : native{native} {};
@@ -34,7 +37,7 @@ namespace impl {
 	};
 }
 
-struct owning_result : public std::unique_ptr<LDAPMessage, impl::msg_deleter> {
+struct owned_result : public std::unique_ptr<LDAPMessage, impl::msg_deleter> {
 	using std::unique_ptr<LDAPMessage, impl::msg_deleter>::unique_ptr;
 	operator result_t() { return result_t{get()}; }
 };
