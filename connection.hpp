@@ -135,6 +135,9 @@ public:
 
 	/// Delete an attribute from an LDAP entry.
 	void remove_attribute(std::string const & dn, std::string const & attribute);
+
+	/// Delete an entry from the LDAP directory.
+	void remove_entry(std::string const & dn);
 };
 
 }

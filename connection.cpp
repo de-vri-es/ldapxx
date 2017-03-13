@@ -86,7 +86,7 @@ namespace {
 			case modification_type::remove_attribute: return LDAP_MOD_DELETE;
 			case modification_type::replace:          return LDAP_MOD_REPLACE;
 		}
-		throw std::logic_error("Unknown modification type: " + std::to_string(int(type)));
+		throw std::logic_error("unknown modification type: " + std::to_string(int(type)));
 	}
 }
 
@@ -176,6 +176,11 @@ void connection::remove_attribute(std::string const & dn, std::string const & at
 
 	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
 	if (code) throw error(code, "deleting attribute value");
+}
+
+void connection::remove_entry(std::string const & dn) {
+	int code = ldap_delete_ext_s(ldap_, dn.c_str(), nullptr, nullptr);
+	if (code) throw error(code, "deleting entry");
 }
 
 }
