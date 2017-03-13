@@ -117,6 +117,24 @@ public:
 		std::chrono::milliseconds timeout,
 		std::size_t max_response_size = default_max_response_size
 	);
+
+	/// Apply a number of modifications to an LDAP entry.
+	/**
+	 * The modifications are performed in the order specified.
+	 */
+	void modify(std::string const & dn, std::vector<modification> const & modifications);
+
+	/// Add an attribute value to an LDAP entry.
+	/**
+	 * The attribute will be created if needed (and if possible).
+	 */
+	void add_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value);
+
+	/// Delete an attribute value from an LDAP entry.
+	void remove_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value);
+
+	/// Delete an attribute from an LDAP entry.
+	void remove_attribute(std::string const & dn, std::string const & attribute);
 };
 
 }

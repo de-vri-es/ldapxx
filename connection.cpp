@@ -72,10 +72,110 @@ owned_result connection::search(query const & query, std::chrono::milliseconds t
 	);
 
 	// Wrap result in unique_ptr before throwing error,
-	// because it always has to be freed.
+	// because it has to be freed either way.
 	owned_result safe_result{result};
 	if (code) throw error{code, "performing LDAP search"};
 	return safe_result;
+}
+
+namespace {
+	int to_ldap_mod_op(modification_type type) {
+		switch (type) {
+			case modification_type::add:              return LDAP_MOD_ADD;
+			case modification_type::remove_values:    return LDAP_MOD_DELETE;
+			case modification_type::remove_attribute: return LDAP_MOD_DELETE;
+			case modification_type::replace:          return LDAP_MOD_REPLACE;
+		}
+		throw std::logic_error("Unknown modification type: " + std::to_string(int(type)));
+	}
+}
+
+void connection::modify(std::string const & dn, std::vector<modification> const & modifications) {
+	// First convert to stupid LDAP API structures.
+	std::vector<ldapmod> ldap_mods;
+	std::vector<LDAPMod *> ldap_mod_ptrs;
+	std::vector<std::vector<berval>> bervals;
+	std::vector<std::vector<berval *>> berval_ptrs;
+
+	// Can't have the vectors resize, it would invalidate pointers.
+	ldap_mods.reserve(modifications.size());
+	ldap_mod_ptrs.reserve(modifications.size() + 1);
+	bervals.reserve(modifications.size());
+	berval_ptrs.reserve(modifications.size() + 1);
+
+	for (modification const & modification : modifications) {
+		// Basic LDAPMod information.
+		ldap_mods.push_back(ldapmod{});
+		ldap_mod_ptrs.push_back(&ldap_mods.back());
+		ldap_mods.back().mod_op = to_ldap_mod_op(modification.type) | LDAP_MOD_BVALUES;
+		ldap_mods.back().mod_type = const_cast<char *>(modification.attribute.c_str());
+
+		// Delete whole attribute?
+		if (modification.type == modification_type::remove_attribute) {
+			ldap_mods.back().mod_op = LDAP_MOD_DELETE;
+			ldap_mods.back().mod_vals.modv_strvals = nullptr;
+			continue;
+		}
+
+		// Add bervals.
+		bervals.emplace_back();
+		berval_ptrs.emplace_back();
+		bervals.back().reserve(modification.values.size());
+		berval_ptrs.back().reserve(modification.values.size() + 1);
+
+		for (std::string const & value : modification.values) {
+			bervals.back().push_back(to_berval(value));
+			berval_ptrs.back().push_back(&bervals.back().back());
+		}
+		berval_ptrs.back().push_back(nullptr);
+
+		ldap_mods.back().mod_vals.modv_bvals = berval_ptrs.back().data();
+	}
+
+	ldap_mod_ptrs.push_back(nullptr);
+
+	// Then pass to LDAP -.-
+	int code = ldap_modify_ext_s(ldap_, dn.data(), ldap_mod_ptrs.data(), nullptr, nullptr);
+	if (code) throw error(code, "applying modifications");
+}
+
+void connection::add_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
+	berval ldap_value = to_berval(value);
+	std::array<berval *, 2> values{{&ldap_value, nullptr}};
+
+	LDAPMod ldap_mod;
+	ldap_mod.mod_op = LDAP_MOD_ADD | LDAP_MOD_BVALUES;
+	ldap_mod.mod_type = const_cast<char *>(attribute.c_str());
+	ldap_mod.mod_vals.modv_bvals = values.data();
+	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
+
+	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (code) throw error(code, "adding attribute value");
+}
+
+void connection::remove_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
+	berval ldap_value = to_berval(value);
+	std::array<berval *, 2> values{{&ldap_value, nullptr}};
+
+	LDAPMod ldap_mod;
+	ldap_mod.mod_op = LDAP_MOD_DELETE | LDAP_MOD_BVALUES;
+	ldap_mod.mod_type = const_cast<char *>(attribute.c_str());
+	ldap_mod.mod_vals.modv_bvals = values.data();
+	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
+
+	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (code) throw error(code, "deleting attribute value");
+}
+
+void connection::remove_attribute(std::string const & dn, std::string const & attribute) {
+	LDAPMod ldap_mod;
+	ldap_mod.mod_op = LDAP_MOD_DELETE;
+	ldap_mod.mod_type = const_cast<char *>(attribute.c_str());
+	ldap_mod.mod_vals.modv_strvals = nullptr;
+	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
+
+	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (code) throw error(code, "deleting attribute value");
 }
 
 }

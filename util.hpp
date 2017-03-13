@@ -70,6 +70,22 @@ inline std::chrono::microseconds to_chrono(timeval const & val) {
 	return std::chrono::microseconds{val.tv_sec * 1000000 + val.tv_usec};
 }
 
+/// Convert a string to a berval.
+inline berval to_berval(std::string & string) {
+	berval result;
+	result.bv_val = &string[0];
+	result.bv_len = string.size();
+	return result;
+}
+
+/// Convert a string to a berval.
+/**
+ * You may not modify the data through the returned berval.
+ */
+inline berval to_berval(std::string const & string) {
+	return to_berval(const_cast<std::string &>(string));
+}
+
 /// Convert a vector of strings to a vector of non-owning C string pointers.
 /**
  * If the input vector is destroyed, the returned vector contains dangling pointers.

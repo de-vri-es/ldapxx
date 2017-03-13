@@ -57,4 +57,17 @@ struct query {
 	bool attributes_only                = false;
 };
 
+enum class modification_type {
+	add,
+	remove_values,
+	remove_attribute,
+	replace,
+};
+
+struct modification {
+	modification_type type;
+	std::string attribute;
+	std::vector<std::string> values;
+};
+
 }
