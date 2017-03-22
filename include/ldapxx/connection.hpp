@@ -24,6 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#pragma once
 #include "options.hpp"
 #include "types.hpp"
 
