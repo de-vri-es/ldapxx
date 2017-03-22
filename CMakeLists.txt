@@ -16,8 +16,10 @@ find_package(LBER REQUIRED)
 set(ldapxx_sources         "")
 set(ldapxx_libraries       "")
 set(ldapxx_install_targets "")
-list(APPEND ldapxx_sources   connection.cpp options.cpp util.cpp walk_result.cpp)
+list(APPEND ldapxx_sources   src/connection.cpp src/options.cpp src/util.cpp src/walk_result.cpp)
 list(APPEND ldapxx_libraries ${LDAP_LIBRARIES} ${LBER_LIBRARIES})
+
+include_directories(PRIVATE "include/${PROJECT_NAME}")
 
 if (${BUILD_SHARED_LIBRARIES})
 	add_library(ldapxx_shared SHARED ${ldapxx_sources})
