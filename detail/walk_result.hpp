@@ -4,7 +4,7 @@
 
 #include <utility>
 
-namespace ldapp {
+namespace ldapxx {
 
 template<typename F>
 void walk_messages(LDAP * connection, result_t result, int count, F && f) {
@@ -32,14 +32,14 @@ template<typename F>
 void walk_entries(LDAP * connection, message_t message, F && f) {
 	LDAPMessage * entry = ldap_first_entry(connection, message);
 	int error = get_result_code(connection);
-	if (!entry && error) throw ldapp::error{error, "retrieving first entry in message"};
+	if (!entry && error) throw ldapxx::error{error, "retrieving first entry in message"};
 	if (!entry) return;
 	f(entry_t{entry});
 
 	while (true) {
 		entry = ldap_next_entry(connection, entry);
 		int error = get_result_code(connection);
-		if (!entry && error) throw ldapp::error{error, "retrieving next entry in message"};
+		if (!entry && error) throw ldapxx::error{error, "retrieving next entry in message"};
 		if (!entry) return;
 		f(entry_t{entry});
 	}
@@ -59,7 +59,7 @@ void walk_attributes(LDAP * connection, entry_t entry, F && f) {
 	auto clean_finger = at_scope_exit([&] () { ber_free(finger, 0); });
 
 	int error = get_result_code(connection);
-	if (!attribute && error) throw ldapp::error{error, "retrieving first attribute in entry"};
+	if (!attribute && error) throw ldapxx::error{error, "retrieving first attribute in entry"};
 	if (!attribute) return;
 	f(attribute);
 	ldap_memfree(attribute);
@@ -67,7 +67,7 @@ void walk_attributes(LDAP * connection, entry_t entry, F && f) {
 	while (true) {
 		attribute = ldap_next_attribute(connection, entry, finger);
 		int error = get_result_code(connection);
-		if (!attribute && error) throw ldapp::error{get_result_code(connection), "retrieving next attribute in entry"};
+		if (!attribute && error) throw ldapxx::error{get_result_code(connection), "retrieving next attribute in entry"};
 		if (!attribute) return;
 		f(attribute);
 		ldap_memfree(attribute);
@@ -77,7 +77,7 @@ void walk_attributes(LDAP * connection, entry_t entry, F && f) {
 template<typename F>
 void walk_values(LDAP * connection, entry_t entry, std::string const & attribute, F && f) {
 	berval * * values = ldap_get_values_len(connection, entry, attribute.data());
-	if (!values) throw ldapp::error{get_result_code(connection), "retrieving attribute values"};
+	if (!values) throw ldapxx::error{get_result_code(connection), "retrieving attribute values"};
 	auto clean_finger = at_scope_exit([values] () { ldap_value_free_len(values); });
 	int count = ldap_count_values_len(values);
 	for (int i = 0; i < count; ++i) {

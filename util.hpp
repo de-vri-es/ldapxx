@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-namespace ldapp {
+namespace ldapxx {
 
 /// A scope guard.
 /**

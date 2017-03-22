@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace ldapp {
+namespace ldapxx {
 
 class error : public std::runtime_error {
 	int code_;

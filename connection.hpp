@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 
-namespace ldapp {
+namespace ldapxx {
 
 /// Connection options.
 /**

@@ -1,7 +1,7 @@
 #include "options.hpp"
 #include "util.hpp"
 
-namespace ldapp {
+namespace ldapxx {
 
 template<>
 std::string get_option<std::string>(LDAP * connection, int option) {

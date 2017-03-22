@@ -1,6 +1,6 @@
 #include "util.hpp"
 
-namespace ldapp {
+namespace ldapxx {
 
 std::vector<char const *> to_cstr_array(std::vector<std::string> const & input) {
 	std::vector<char const *> result;

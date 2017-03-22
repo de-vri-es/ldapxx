@@ -2,7 +2,7 @@
 #include "options.hpp"
 #include "util.hpp"
 
-namespace ldapp {
+namespace ldapxx {
 
 namespace {
 	template<typename T, typename Y>
@@ -50,7 +50,7 @@ connection::connection(std::string const & uri, connection_options const & optio
 	if (int code = ldap_initialize(&ldap_, uri.c_str())) throw error(code, "initializing LDAP connection");
 	apply_options(ldap_, options);
 	if (options.tls.starttls) {
-		if (int error = ldap_start_tls_s(ldap_, nullptr, nullptr)) throw ldapp::error(error, "setting up TLS");
+		if (int error = ldap_start_tls_s(ldap_, nullptr, nullptr)) throw ldapxx::error(error, "setting up TLS");
 	}
 }
 

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace ldapp {
+namespace ldapxx {
 
 /// The default maximum response size for LDAP queries.
 constexpr std::size_t default_max_response_size = 4 * 1024 * 1024;
@@ -51,7 +51,7 @@ enum class scope {
 
 struct query {
 	std::string base;
-	ldapp::scope scope                  = ldapp::scope::base;
+	ldapxx::scope scope                 = ldapxx::scope::base;
 	std::string filter                  = "(objectClass=*)";
 	std::vector<std::string> attributes = {"*"};
 	bool attributes_only                = false;

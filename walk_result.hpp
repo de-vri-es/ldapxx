@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-namespace ldapp {
+namespace ldapxx {
 
 	/// Count the number of messages in a result.
 	unsigned int count_messages(LDAP * connection, result_t result);

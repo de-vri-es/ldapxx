@@ -3,7 +3,7 @@
 
 #include <utility>
 
-namespace ldapp {
+namespace ldapxx {
 
 unsigned int count_messages(LDAP * connection, result_t result) {
 	int count = ldap_count_messages(connection, result);

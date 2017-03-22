@@ -6,7 +6,7 @@
 #include <chrono>
 #include <string>
 
-namespace ldapp {
+namespace ldapxx {
 
 /// Set an LDAP option.
 /**
