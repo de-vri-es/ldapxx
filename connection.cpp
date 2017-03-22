@@ -118,17 +118,8 @@ void connection::modify(std::string const & dn, std::vector<modification> const 
 		}
 
 		// Add bervals.
-		bervals.emplace_back();
-		berval_ptrs.emplace_back();
-		bervals.back().reserve(modification.values.size());
-		berval_ptrs.back().reserve(modification.values.size() + 1);
-
-		for (std::string const & value : modification.values) {
-			bervals.back().push_back(to_berval(value));
-			berval_ptrs.back().push_back(&bervals.back().back());
-		}
-		berval_ptrs.back().push_back(nullptr);
-
+		bervals.emplace_back(toBervals(modification.values));
+		berval_ptrs.emplace_back(toPtrs(bervals.back()));
 		ldap_mods.back().mod_vals.modv_bvals = berval_ptrs.back().data();
 	}
 
@@ -176,6 +167,33 @@ void connection::remove_attribute(std::string const & dn, std::string const & at
 
 	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
 	if (code) throw error(code, "deleting attribute value");
+}
+
+void connection::add_entry(std::string const & dn, std::map<std::string, std::vector<std::string>> const & attributes) {
+	std::vector<ldapmod> ldap_mods;
+	std::vector<std::vector<berval>> bervals;
+	std::vector<std::vector<berval *>> berval_ptrs;
+
+	ldap_mods.reserve(attributes.size());
+	bervals.reserve(attributes.size());
+	berval_ptrs.reserve(attributes.size() + 1);
+
+	for (auto const & attribute : attributes) {
+		// Basic LDAPMod information.
+		ldap_mods.push_back(ldapmod{});
+		ldap_mods.back().mod_op = LDAP_MOD_ADD | LDAP_MOD_BVALUES;
+		ldap_mods.back().mod_type = const_cast<char *>(attribute.first.c_str());
+
+		// Add bervals.
+		bervals.emplace_back(toBervals(attribute.second));
+		berval_ptrs.emplace_back(toPtrs(bervals.back()));
+		ldap_mods.back().mod_vals.modv_bvals = berval_ptrs.back().data();
+	}
+
+	std::vector<LDAPMod *> mod_ptrs = toPtrs(ldap_mods);
+
+	int code = ldap_add_ext_s(ldap_, dn.c_str(), mod_ptrs.data(), nullptr, nullptr);
+	if (code) throw error(code, "adding entry");
 }
 
 void connection::remove_entry(std::string const & dn) {

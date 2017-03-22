@@ -6,6 +6,7 @@
 #include <boost/optional.hpp>
 
 #include <chrono>
+#include <map>
 #include <string>
 
 namespace ldapp {
@@ -98,6 +99,11 @@ public:
 	 * The options are set just after the connection is initialized,
 	 * before the connection is really opened.
 	 *
+	 * If options.tls.starttls is set, a STARTTLS command will be issued after the connection is opened.
+	 *
+	 * Note that the LDAP library doesn't actually open a connection until the first action is performed.
+	 * The STARTTLS command is a convenient way to force the LDAP library to open the connection.
+	 *
 	 * For a set of reasonably secure TLS options, you can use default_tls_options().
 	 */
 	connection(std::string const & uri, connection_options const & options);
@@ -135,6 +141,9 @@ public:
 
 	/// Delete an attribute from an LDAP entry.
 	void remove_attribute(std::string const & dn, std::string const & attribute);
+
+	/// Add an entry to the LDAP directory.
+	void add_entry(std::string const & dn, std::map<std::string, std::vector<std::string>> const & attributes);
 
 	/// Delete an entry from the LDAP directory.
 	void remove_entry(std::string const & dn);

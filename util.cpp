@@ -12,4 +12,11 @@ std::vector<char const *> to_cstr_array(std::vector<std::string> const & input) 
 	return result;
 }
 
+std::vector<berval> toBervals(std::vector<std::string> const & values) {
+	std::vector<berval> result;
+	result.reserve(values.size());
+	for (auto const & value : values) result.push_back(to_berval(value));
+	return result;
+}
+
 }

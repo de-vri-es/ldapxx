@@ -81,9 +81,43 @@ inline berval to_berval(std::string & string) {
 /// Convert a string to a berval.
 /**
  * You may not modify the data through the returned berval.
+ * Doing so will invoke undefined behaviourl.
  */
 inline berval to_berval(std::string const & string) {
 	return to_berval(const_cast<std::string &>(string));
+}
+
+/// Convert a vector of string to a vector of bervals.
+/*
+ * You may not modify the string through any of the returned bervals.
+ * Doing so anyway will invoke undefined behaviour.
+ */
+std::vector<berval> toBervals(std::vector<std::string> const & values);
+
+/// Convert a vector to a vector of null terminated pointers to the elements.
+/**
+ * If the input vector is destroyed, the returned vector contains dangling pointers.
+ */
+template<typename T>
+std::vector<T const *> toPtrs(std::vector<T> const & values) {
+	std::vector<T const *> result;
+	result.reserve(values.size());
+	for (T const & value : values) result.push_back(&value);
+	result.push_back(nullptr);
+	return result;
+}
+
+/// Convert a vector to a vector of null terminated pointers to the elements.
+/**
+ * If the input vector is destroyed, the returned vector contains dangling pointers.
+ */
+template<typename T>
+std::vector<T *> toPtrs(std::vector<T> & values) {
+	std::vector<T *> result;
+	result.reserve(values.size());
+	for (T & value : values) result.push_back(&value);
+	result.push_back(nullptr);
+	return result;
 }
 
 /// Convert a vector of strings to a vector of non-owning C string pointers.
