@@ -36,6 +36,11 @@ namespace ldapxx {
 /// The default maximum response size for LDAP queries.
 constexpr std::size_t default_max_response_size = 4 * 1024 * 1024;
 
+/// An LDAP query result containing messages.
+/**
+ * This is a thin wrapper around a LDAPMessage pointer with a strong type,
+ * which is mainly used for overloading safely.
+ */
 struct result_t {
 	LDAPMessage * native;
 	explicit result_t(LDAPMessage * native) : native{native} {};
@@ -43,6 +48,11 @@ struct result_t {
 	operator LDAPMessage       * ()       { return native; }
 };
 
+/// A single LDAP message containing entries.
+/**
+ * This is a thin wrapper around a LDAPMessage pointer with a strong type,
+ * which is mainly used for overloading safely.
+ */
 struct message_t {
 	LDAPMessage * native;
 	explicit message_t(LDAPMessage * native) : native{native} {};
@@ -50,6 +60,11 @@ struct message_t {
 	operator LDAPMessage       * ()       { return native; }
 };
 
+/// A single LDAP entry containing attributes and values.
+/**
+ * This is a thin wrapper around a LDAPMessage pointer with a strong type,
+ * which is mainly used for overloading safely.
+ */
 struct entry_t {
 	LDAPMessage * native;
 	explicit entry_t(LDAPMessage * native) : native{native} {};
@@ -58,23 +73,30 @@ struct entry_t {
 };
 
 namespace impl {
+	/// Delete an LDAP message by calling ldap_msgfree().
 	struct msg_deleter {
 		void operator() (LDAPMessage * msg) { ldap_msgfree(msg); }
 	};
 }
 
+/// An owned LDAP query result.
+/**
+ * The underlying LDAP message is automatically freed when the result goes out of scope.
+ */
 struct owned_result : public std::unique_ptr<LDAPMessage, impl::msg_deleter> {
 	using std::unique_ptr<LDAPMessage, impl::msg_deleter>::unique_ptr;
 	operator result_t() { return result_t{get()}; }
 };
 
+/// A qeury scope.
 enum class scope {
-	base      = LDAP_SCOPE_BASE,
-	one_level = LDAP_SCOPE_ONELEVEL,
-	subtree   = LDAP_SCOPE_SUBTREE,
-	children  = LDAP_SCOPE_CHILDREN,
+	base      = LDAP_SCOPE_BASE,     ///< Search only the base DN.
+	one_level = LDAP_SCOPE_ONELEVEL, ///< Search the direct children of the base DN.
+	subtree   = LDAP_SCOPE_SUBTREE,  ///< Search the base DN and all its descendants.
+	children  = LDAP_SCOPE_CHILDREN, ///< Search all the descendants of the base DN (but not the base DN itself).
 };
 
+/// An LDAP search query.
 struct query {
 	std::string base;
 	ldapxx::scope scope                 = ldapxx::scope::base;
@@ -116,17 +138,19 @@ struct query_constructor {
 /// Make a query using a query_constructor.
 inline query_constructor make_query() { return query_constructor{}; }
 
+/// A type of entry attribute modification.
 enum class modification_type {
-	add,
-	remove_values,
-	remove_attribute,
-	replace,
+	add,               ///< Add attribute values.
+	remove_values,     ///< Remove attribute values.
+	remove_attribute,  ///< Remove a whole attribute and all it's values.
+	replace,           ///< Replaces the values of an attribute.
 };
 
+/// A modification of an entity attribute.
 struct modification {
-	modification_type type;
-	std::string attribute;
-	std::vector<std::string> values;
+	modification_type type;          ///< The type of modification.
+	std::string attribute;           ///< The attribute to modify.
+	std::vector<std::string> values; ///< The new values (not used if the whole attribute is deleted).
 };
 
 }

@@ -32,6 +32,7 @@
 
 namespace ldapxx {
 
+/// An LDAP error with a code and a message.
 class error : public std::runtime_error {
 	int code_;
 
