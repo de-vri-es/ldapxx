@@ -141,6 +141,9 @@ public:
 	/// Allow implicit conversion to the native C API handle.
 	operator LDAP * () const { return native(); }
 
+	/// Perform a simple bind with a DN and a password.
+	void simple_bind(std::string const & dn, std::string const & password);
+
 	/// Perform a search query.
 	/**
 	 * The returned result is automatically wrapped in a unique_ptr with the appropriate deleter.

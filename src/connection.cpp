@@ -80,6 +80,12 @@ connection::connection(std::string const & uri, connection_options const & optio
 	}
 }
 
+void connection::simple_bind(std::string const & dn, std::string const & password) {
+	berval credentials { password.size(), &password[0] };
+	int error = ldap_sasl_bind_s(connection, dn.c_str(), LDAP_SASL_SIMPLE, &credentials, nullptr, nullptr, nullptr);
+	if (error) throw ldapxx::error(error, "performing simple bind");
+}
+
 owned_result connection::search(query const & query, std::chrono::milliseconds timeout, std::size_t max_response) {
 	timeval timeout_c = to_timeval(timeout);
 	std::vector<char const *> attributes_c = to_cstr_array(query.attributes);
@@ -97,8 +103,7 @@ owned_result connection::search(query const & query, std::chrono::milliseconds t
 		&result
 	);
 
-	// Wrap result in unique_ptr before throwing error,
-	// because it has to be freed either way.
+	// Wrap result in unique_ptr before throwing error, because it has to be freed either way.
 	owned_result safe_result{result};
 	if (code) throw error{code, "performing LDAP search"};
 	return safe_result;
