@@ -81,8 +81,8 @@ connection::connection(std::string const & uri, connection_options const & optio
 }
 
 void connection::simple_bind(std::string const & dn, std::string const & password) {
-	berval credentials { password.size(), &password[0] };
-	int error = ldap_sasl_bind_s(connection, dn.c_str(), LDAP_SASL_SIMPLE, &credentials, nullptr, nullptr, nullptr);
+	berval ber_password = to_berval(password);
+	int error = ldap_sasl_bind_s(ldap_, dn.c_str(), LDAP_SASL_SIMPLE, &ber_password, nullptr, nullptr, nullptr);
 	if (error) throw ldapxx::error(error, "performing simple bind");
 }
 

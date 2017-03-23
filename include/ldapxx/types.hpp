@@ -83,6 +83,39 @@ struct query {
 	bool attributes_only                = false;
 };
 
+/// Helper class to construct a query in pieces.
+/**
+ * You can set fields of the query with daisy-chainable setters.
+ *
+ * When you're done, the query_constructor can be convert to a query implicitly.
+ */
+struct query_constructor {
+	ldapxx::query query;
+
+	query_constructor  & base(std::string const & base)  & { query.base = base; return *this; }
+	query_constructor && base(std::string const & base) && { query.base = base; return std::move(*this); }
+
+	query_constructor  & scope(ldapxx::scope scope)  & { query.scope = scope; return *this; }
+	query_constructor && scope(ldapxx::scope scope) && { query.scope = scope; return std::move(*this); }
+
+	query_constructor  & filter(std::string const & filter)  & { query.filter = filter; return *this; }
+	query_constructor && filter(std::string const & filter) && { query.filter = filter; return std::move(*this); }
+
+	query_constructor  & attributes(std::vector<std::string> const & attributes)  & { query.attributes = attributes; return *this; }
+	query_constructor && attributes(std::vector<std::string> const & attributes) && { query.attributes = attributes; return std::move(*this); }
+
+	query_constructor  & attributes_only(bool attributes_only)  & { query.attributes_only = attributes_only; return *this; }
+	query_constructor && attributes_only(bool attributes_only) && { query.attributes_only = attributes_only; return std::move(*this); }
+
+	/// Allow implicit conversion to a query.
+	operator ldapxx::query       & ()       & { return query; }
+	operator ldapxx::query const & () const & { return query; }
+	operator ldapxx::query      && ()      && { return std::move(query); }
+};
+
+/// Make a query using a query_constructor.
+inline query_constructor make_query() { return query_constructor{}; }
+
 enum class modification_type {
 	add,
 	remove_values,
