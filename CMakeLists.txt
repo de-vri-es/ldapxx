@@ -50,6 +50,8 @@ install(TARGETS ${ldapxx_install_targets} EXPORT ldapxxTargets
 	ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
 
+install(DIRECTORY include/ DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
 install(EXPORT ldapxxTargets DESTINATION "${CMAKE_INSTALL_CMAKEDIR}")
 install(
 	FILES
