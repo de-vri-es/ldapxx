@@ -73,17 +73,17 @@ void apply_options(LDAP * connection, connection_options const & options) {
 connection::connection(LDAP * ldap) : ldap_(ldap) {}
 
 connection::connection(std::string const & uri, connection_options const & options) {
-	if (int code = ldap_initialize(&ldap_, uri.c_str())) throw error(code, "initializing LDAP connection");
+	if (int code = ldap_initialize(&ldap_, uri.c_str())) throw error{errc(code), "initializing LDAP connection"};
 	apply_options(ldap_, options);
 	if (options.tls.starttls) {
-		if (int error = ldap_start_tls_s(ldap_, nullptr, nullptr)) throw ldapxx::error(error, "setting up TLS");
+		if (int error = ldap_start_tls_s(ldap_, nullptr, nullptr)) throw ldapxx::error{errc(error), "setting up TLS"};
 	}
 }
 
 void connection::simple_bind(std::string const & dn, std::string const & password) {
 	berval ber_password = to_berval(password);
 	int error = ldap_sasl_bind_s(ldap_, dn.c_str(), LDAP_SASL_SIMPLE, &ber_password, nullptr, nullptr, nullptr);
-	if (error) throw ldapxx::error(error, "performing simple bind");
+	if (error) throw ldapxx::error{errc(error), "performing simple bind"};
 }
 
 owned_result connection::search(query const & query, std::chrono::milliseconds timeout, std::size_t max_response) {
@@ -91,7 +91,7 @@ owned_result connection::search(query const & query, std::chrono::milliseconds t
 	std::vector<char const *> attributes_c = to_cstr_array(query.attributes);
 
 	LDAPMessage * result = nullptr;
-	int code = ldap_search_ext_s(
+	int error = ldap_search_ext_s(
 		ldap_,
 		query.base.data(),
 		int(query.scope),
@@ -105,7 +105,7 @@ owned_result connection::search(query const & query, std::chrono::milliseconds t
 
 	// Wrap result in unique_ptr before throwing error, because it has to be freed either way.
 	owned_result safe_result{result};
-	if (code) throw error{code, "performing LDAP search"};
+	if (error) throw ldapxx::error{errc(error), "performing LDAP search"};
 	return safe_result;
 }
 
@@ -157,8 +157,8 @@ void connection::modify(std::string const & dn, std::vector<modification> const 
 	ldap_mod_ptrs.push_back(nullptr);
 
 	// Then pass to LDAP -.-
-	int code = ldap_modify_ext_s(ldap_, dn.data(), ldap_mod_ptrs.data(), nullptr, nullptr);
-	if (code) throw error(code, "applying modifications");
+	int error = ldap_modify_ext_s(ldap_, dn.data(), ldap_mod_ptrs.data(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "applying modifications"};
 }
 
 void connection::add_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
@@ -171,8 +171,8 @@ void connection::add_attribute_value(std::string const & dn, std::string const &
 	ldap_mod.mod_vals.modv_bvals = values.data();
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
-	if (code) throw error(code, "adding attribute value");
+	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "adding attribute value"};
 }
 
 void connection::remove_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
@@ -185,8 +185,8 @@ void connection::remove_attribute_value(std::string const & dn, std::string cons
 	ldap_mod.mod_vals.modv_bvals = values.data();
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
-	if (code) throw error(code, "deleting attribute value");
+	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "deleting attribute value"};
 }
 
 void connection::remove_attribute(std::string const & dn, std::string const & attribute) {
@@ -196,8 +196,8 @@ void connection::remove_attribute(std::string const & dn, std::string const & at
 	ldap_mod.mod_vals.modv_strvals = nullptr;
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int code = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
-	if (code) throw error(code, "deleting attribute value");
+	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "deleting attribute value"};
 }
 
 void connection::add_entry(std::string const & dn, std::map<std::string, std::vector<std::string>> const & attributes) {
@@ -223,13 +223,13 @@ void connection::add_entry(std::string const & dn, std::map<std::string, std::ve
 
 	std::vector<LDAPMod *> mod_ptrs = toPtrs(ldap_mods);
 
-	int code = ldap_add_ext_s(ldap_, dn.c_str(), mod_ptrs.data(), nullptr, nullptr);
-	if (code) throw error(code, "adding entry");
+	int error = ldap_add_ext_s(ldap_, dn.c_str(), mod_ptrs.data(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "adding entry"};
 }
 
 void connection::remove_entry(std::string const & dn) {
-	int code = ldap_delete_ext_s(ldap_, dn.c_str(), nullptr, nullptr);
-	if (code) throw error(code, "deleting entry");
+	int error = ldap_delete_ext_s(ldap_, dn.c_str(), nullptr, nullptr);
+	if (error) throw ldapxx::error{errc(error), "deleting entry"};
 }
 
 }

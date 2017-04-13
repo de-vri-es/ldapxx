@@ -109,7 +109,7 @@ struct query {
 /**
  * You can set fields of the query with daisy-chainable setters.
  *
- * When you're done, the query_constructor can be convert to a query implicitly.
+ * When you're done, the query_constructor can be converted to a query implicitly.
  */
 struct query_constructor {
 	ldapxx::query query;

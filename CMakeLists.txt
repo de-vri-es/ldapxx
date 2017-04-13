@@ -20,7 +20,7 @@ find_package(Boost REQUIRED)
 set(ldapxx_sources         "")
 set(ldapxx_libraries       "")
 set(ldapxx_install_targets "")
-list(APPEND ldapxx_sources   src/connection.cpp src/options.cpp src/util.cpp src/walk_result.cpp)
+list(APPEND ldapxx_sources   src/connection.cpp src/error.cpp src/options.cpp src/util.cpp src/walk_result.cpp)
 list(APPEND ldapxx_libraries "${LDAP_LIBRARIES}" "${LBER_LIBRARIES}")
 
 include_directories("include/${PROJECT_NAME}" SYSTEM ${Boost_INCLUDE_DIRECTORIES})

@@ -60,8 +60,8 @@ std::string get_diagnostic_message(LDAP * connection) {
 	return get_option<std::string>(connection, LDAP_OPT_DIAGNOSTIC_MESSAGE);
 }
 
-int get_result_code(LDAP * connection) {
-	return get_option<int>(connection, LDAP_OPT_RESULT_CODE);
+errc get_result_code(LDAP * connection) {
+	return errc(get_option<int>(connection, LDAP_OPT_RESULT_CODE));
 }
 
 int get_debug_level(LDAP * connection) {

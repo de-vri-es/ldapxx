@@ -25,7 +25,7 @@
  */
 
 #pragma once
-#include "error.hpp"
+#include <lber.h>
 
 #include <chrono>
 #include <string>

@@ -41,7 +41,7 @@ namespace ldapxx {
 template<typename T>
 void set_option(LDAP * connection, int option, T const & value) {
 	if (int code = ldap_set_option(connection, option, &value)) {
-		throw error(code, "setting option " + std::to_string(option));
+		throw error{errc(code), "setting option " + std::to_string(option)};
 	}
 }
 
@@ -53,7 +53,7 @@ template<typename T>
 T get_option(LDAP * connection, int option) {
 	T result;
 	if (int code = ldap_get_option(connection, option, &result)) {
-		throw error(code, "setting option " + std::to_string(option));
+		throw error{errc(code), "setting option " + std::to_string(option)};
 	}
 	return result;
 }
@@ -78,7 +78,7 @@ LDAPAPIFeatureInfo get_api_feature_info(LDAP * connection);
 LDAPAPIInfo get_api_info(LDAP * connection);
 int get_file_descriptor(LDAP * connection);
 std::string get_diagnostic_message(LDAP * connection);
-int get_result_code(LDAP * connection);
+errc get_result_code(LDAP * connection);
 
 int get_debug_level(LDAP * connection);
 void set_debug_level(LDAP * connection, int level);
