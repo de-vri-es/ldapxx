@@ -114,17 +114,17 @@ struct query {
 struct query_constructor {
 	ldapxx::query query;
 
-	query_constructor  & base(std::string const & base)  & { query.base = base; return *this; }
-	query_constructor && base(std::string const & base) && { query.base = base; return std::move(*this); }
+	query_constructor  & base(std::string base)  & { query.base = std::move(base); return *this; }
+	query_constructor && base(std::string base) && { query.base = std::move(base); return std::move(*this); }
 
 	query_constructor  & scope(ldapxx::scope scope)  & { query.scope = scope; return *this; }
 	query_constructor && scope(ldapxx::scope scope) && { query.scope = scope; return std::move(*this); }
 
-	query_constructor  & filter(std::string const & filter)  & { query.filter = filter; return *this; }
-	query_constructor && filter(std::string const & filter) && { query.filter = filter; return std::move(*this); }
+	query_constructor  & filter(std::string filter)  & { query.filter = std::move(filter); return *this; }
+	query_constructor && filter(std::string filter) && { query.filter = std::move(filter); return std::move(*this); }
 
-	query_constructor  & attributes(std::vector<std::string> const & attributes)  & { query.attributes = attributes; return *this; }
-	query_constructor && attributes(std::vector<std::string> const & attributes) && { query.attributes = attributes; return std::move(*this); }
+	query_constructor  & attributes(std::vector<std::string> attributes)  & { query.attributes = std::move(attributes); return *this; }
+	query_constructor && attributes(std::vector<std::string> attributes) && { query.attributes = std::move(attributes); return std::move(*this); }
 
 	query_constructor  & attributes_only(bool attributes_only)  & { query.attributes_only = attributes_only; return *this; }
 	query_constructor && attributes_only(bool attributes_only) && { query.attributes_only = attributes_only; return std::move(*this); }
