@@ -29,6 +29,7 @@
 #include "../types.hpp"
 
 #include <utility>
+#include <string_view>
 
 namespace ldapxx {
 
@@ -102,7 +103,7 @@ void walk_attributes(LDAP * connection, entry_t entry, F && f) {
 
 template<typename F>
 void walk_values(LDAP * connection, entry_t entry, std::string const & attribute, F && f) {
-	berval * * values = ldap_get_values_len(connection, entry, attribute.data());
+	berval * * values = ldap_get_values_len(connection, entry, attribute.c_str());
 	if (!values) throw error{get_result_code(connection), "retrieving attribute values"};
 	auto clean_finger = at_scope_exit([values] () { ldap_value_free_len(values); });
 	int count = ldap_count_values_len(values);

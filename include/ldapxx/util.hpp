@@ -29,6 +29,7 @@
 
 #include <chrono>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -97,27 +98,15 @@ inline std::chrono::microseconds to_chrono(timeval const & val) {
 }
 
 /// Convert a string to a berval.
-inline berval to_berval(std::string & string) {
+inline berval to_berval(std::string_view string) {
 	berval result;
-	result.bv_val = &string[0];
+	result.bv_val = const_cast<char *>(string.data());
 	result.bv_len = string.size();
 	return result;
 }
 
-/// Convert a string to a berval.
-/**
- * You may not modify the data through the returned berval.
- * Doing so will invoke undefined behaviourl.
- */
-inline berval to_berval(std::string const & string) {
-	return to_berval(const_cast<std::string &>(string));
-}
-
 /// Convert a vector of string to a vector of bervals.
-/*
- * You may not modify the string through any of the returned bervals.
- * Doing so anyway will invoke undefined behaviour.
- */
+std::vector<berval> toBervals(std::vector<std::string_view> const & values);
 std::vector<berval> toBervals(std::vector<std::string> const & values);
 
 /// Convert a vector to a vector of null terminated pointers to the elements.
@@ -150,6 +139,7 @@ std::vector<T *> toPtrs(std::vector<T> & values) {
 /**
  * If the input vector is destroyed, the returned vector contains dangling pointers.
  */
-std::vector<char const *> to_cstr_array(std::vector<std::string> const & input);
+std::vector<char const *> to_cstr_array(std::vector<std::string_view> const & input);
+std::vector<char const *> to_cstr_array(std::vector<std::string>      const & input);
 
 }

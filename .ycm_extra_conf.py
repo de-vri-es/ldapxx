@@ -12,7 +12,7 @@ def FlagsForFile(filename, **kwargs):
 		'-Wextra',
 		'-Wpedantic',
 		'-fPIC',
-		'-std=c++14',
+		'-std=c++17',
 		'-isystem', os.path.join(base, 'include/ldapxx'),
 	]
 

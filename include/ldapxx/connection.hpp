@@ -35,6 +35,7 @@
 #include <chrono>
 #include <map>
 #include <string>
+#include <string_view>
 
 namespace ldapxx {
 
@@ -142,7 +143,7 @@ public:
 	operator LDAP * () const { return native(); }
 
 	/// Perform a simple bind with a DN and a password.
-	void simple_bind(std::string const & dn, std::string const & password);
+	void simple_bind(std::string const & dn, std::string_view password);
 
 	/// Perform a search query.
 	/**
@@ -164,10 +165,10 @@ public:
 	/**
 	 * The attribute will be created if needed (and if possible).
 	 */
-	void add_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value);
+	void add_attribute_value(std::string const & dn, std::string const & attribute, std::string_view value);
 
 	/// Delete an attribute value from an LDAP entry.
-	void remove_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value);
+	void remove_attribute_value(std::string const & dn, std::string const & attribute, std::string_view value);
 
 	/// Delete an attribute from an LDAP entry.
 	void remove_attribute(std::string const & dn, std::string const & attribute);

@@ -80,7 +80,7 @@ connection::connection(std::string const & uri, connection_options const & optio
 	}
 }
 
-void connection::simple_bind(std::string const & dn, std::string const & password) {
+void connection::simple_bind(std::string const & dn, std::string_view password) {
 	berval ber_password = to_berval(password);
 	int error = ldap_sasl_bind_s(ldap_, dn.c_str(), LDAP_SASL_SIMPLE, &ber_password, nullptr, nullptr, nullptr);
 	if (error) throw ldapxx::error{errc(error), "performing simple bind"};
@@ -157,11 +157,11 @@ void connection::modify(std::string const & dn, std::vector<modification> const 
 	ldap_mod_ptrs.push_back(nullptr);
 
 	// Then pass to LDAP -.-
-	int error = ldap_modify_ext_s(ldap_, dn.data(), ldap_mod_ptrs.data(), nullptr, nullptr);
+	int error = ldap_modify_ext_s(ldap_, dn.c_str(), ldap_mod_ptrs.data(), nullptr, nullptr);
 	if (error) throw ldapxx::error{errc(error), "applying modifications"};
 }
 
-void connection::add_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
+void connection::add_attribute_value(std::string const & dn, std::string const & attribute, std::string_view value) {
 	berval ldap_value = to_berval(value);
 	std::array<berval *, 2> values{{&ldap_value, nullptr}};
 
@@ -171,11 +171,11 @@ void connection::add_attribute_value(std::string const & dn, std::string const &
 	ldap_mod.mod_vals.modv_bvals = values.data();
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	int error = ldap_modify_ext_s(ldap_, dn.c_str(), mods.data(), nullptr, nullptr);
 	if (error) throw ldapxx::error{errc(error), "adding attribute value"};
 }
 
-void connection::remove_attribute_value(std::string const & dn, std::string const & attribute, std::string const & value) {
+void connection::remove_attribute_value(std::string const & dn, std::string const & attribute, std::string_view value) {
 	berval ldap_value = to_berval(value);
 	std::array<berval *, 2> values{{&ldap_value, nullptr}};
 
@@ -185,7 +185,7 @@ void connection::remove_attribute_value(std::string const & dn, std::string cons
 	ldap_mod.mod_vals.modv_bvals = values.data();
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	int error = ldap_modify_ext_s(ldap_, dn.c_str(), mods.data(), nullptr, nullptr);
 	if (error) throw ldapxx::error{errc(error), "deleting attribute value"};
 }
 
@@ -196,7 +196,7 @@ void connection::remove_attribute(std::string const & dn, std::string const & at
 	ldap_mod.mod_vals.modv_strvals = nullptr;
 	std::array<LDAPMod *, 2> mods{{&ldap_mod, nullptr}};
 
-	int error = ldap_modify_ext_s(ldap_, dn.data(), mods.data(), nullptr, nullptr);
+	int error = ldap_modify_ext_s(ldap_, dn.c_str(), mods.data(), nullptr, nullptr);
 	if (error) throw ldapxx::error{errc(error), "deleting attribute value"};
 }
 
